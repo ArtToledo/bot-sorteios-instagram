@@ -1,0 +1,109 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="backgroundImage">
+    <div class="contadorComentarios">
+      <h5>Quantidade de comentários: </h5>
+      <h6 id="numeroComentarios">0</h6>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Ganhador de Sorteios</h1>
+  </div>
+
+  <div class="inputs">
+    <label for="login">Login</label>
+    <input type="text" id="login" name="login" placeholder="Número de telefone, email ou nome de usuário" />
+
+    <label for="password">Senha</label>
+    <input type="password" id="password" name="password" />
+
+    <label for="perfis">Perfis a serem marcados (espaço entre os mesmos e seus @)</label>
+    <input type="text" id="perfis" name="perfis" placeholder="@Art_toledo @Jaque361 @joaozinho_costa" />
+
+    <label for="urlSorteio">URL da imagem oficial do sorteio</label>
+    <input type="url" id="urlSorteio" name="urlSorteio" />
+  </div>
+
+  <div class="actions">
+    <button class="cancel">
+      <p id="cancelText">Parar</p>
+    </button>
+    <button class="active">
+      <p id="activeText">Ativar</p>
+    </button>
+  </div>
+
+
+  <script>
+    const buttonActive = document.querySelector('.active');
+    const textButton = document.getElementById('activeText');
+
+    buttonActive.addEventListener('click', () => {
+      if (textButton.textContent === 'Ativar') {
+        const inputLogin = document.getElementById('login').value;
+        const inputPassword = document.getElementById('password').value;
+        const inputPerfis = document.getElementById('perfis').value;
+        const inputUrlSorteio = document.getElementById('urlSorteio').value;
+
+        if (inputLogin === '' || inputPassword === '' || inputPerfis === '' || inputUrlSorteio === '') {
+          alert('Preencha todos os campos para executar o programa.')
+        } else {
+          textButton.innerHTML = 'Executando...'
+          textButton.setAttribute("disabled", "true")
+
+
+          // code electron
+          const { ipcRenderer } = require('electron')
+
+          ipcRenderer.send('activeSystem', {
+            loginInput: inputLogin,
+            passwordInput: inputPassword,
+            perfisInput: inputPerfis,
+            urlSorteioInput: inputUrlSorteio,
+          })
+        }
+      } else {
+        alert('O programa já está em execução')
+      }
+    });
+  </script>
+  <script>
+    const buttonCancel = document.querySelector('.cancel');
+    const textButtonActive = document.getElementById('activeText');
+
+    buttonCancel.addEventListener('click', () => {
+      if (textButton.textContent === 'Executando...') {
+
+        textButtonActive.innerHTML = 'Ativar'
+        textButtonActive.setAttribute("disabled", "false")
+
+        // code electron
+        const { ipcRenderer } = require('electron')
+
+        ipcRenderer.send('cancelSystem');
+      } else {
+        alert('O programa não está em execução')
+      }
+    });
+  </script>
+  <script>
+    // code electron
+    const { ipcRenderer } = require('electron')
+
+    ipcRenderer.on('comentarioFinalizado', (event, arg) => {
+      document.getElementById('numeroComentarios').innerHTML = arg;
+    })
+  </script>
+</body>
+
+</html>
