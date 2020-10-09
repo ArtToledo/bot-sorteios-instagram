@@ -17,12 +17,15 @@ function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    title: 'Ganhador de Sorteios',
+    resizable: false,
     icon: __dirname + '/assets/icon/icon_16x16.png' ,
     webPreferences: {
       nodeIntegration: true
     }
   })
 
+  win.removeMenu();
   win.loadFile('index.html');
 }
 
