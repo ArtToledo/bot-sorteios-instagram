@@ -1,5 +1,6 @@
 {
   "name": "ganhador-de-sorteios",
+  "productName": "Ganhador de Sorteios",
   "version": "0.0.1",
   "main": "main.js",
   "description": "",

@@ -17,6 +17,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: __dirname + '/assets/icon/icon_16x16.png' ,
     webPreferences: {
       nodeIntegration: true
     }
@@ -55,8 +56,6 @@ ipcMain.on('cancelSystem', (event, arg) => {
 
 var job = new CronJob('*/2 * * * *', function() {
   commentInstagram(login, password, perfis, urlSorteio);
-  totalComentarios += 1;
-  win.webContents.send('comentarioFinalizado', totalComentarios);
 });
 
 const commentInstagram = async (login, password, perfis, urlSorteio) => {
@@ -82,4 +81,7 @@ const commentInstagram = async (login, password, perfis, urlSorteio) => {
   await page.click('button[type="submit"]');
 
   await browser.close();
+
+  totalComentarios += 1;
+  win.webContents.send('comentarioFinalizado', totalComentarios);
 };
