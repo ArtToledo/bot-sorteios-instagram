@@ -12,6 +12,14 @@
       <h5>Quantidade de comentários: </h5>
       <h6 id="numeroComentarios">0</h6>
     </div>
+
+    <div class="contadorComentarios">
+      <h5>Orientações gerais</h5>
+      <h6 id="numeroComentarios">O tempo entre cada comentário pode ser personalizado, porém é recomendado que seja utilizado no mínimo 2 minutos entre cada um para evitar que seu perfil seja bloqueado <b>temporariamente</b>.</h6>
+      <h6 id="numeroComentarios">Caso você não tenha o costume de realizar comentários em publicações, pause o bot a cada 100 comentários por 20 minutos.</h6>
+      <h6 id="numeroComentarios">Caso for abrir o programa duas vezes, utilize perfis diferentes.</h6>
+      <h6 id="numeroComentarios">Não utilize o Instagram enquanto o programa estiver ativo.</h6>
+    </div>
   </div>
 
   <div class="header">
@@ -25,11 +33,17 @@
     <label for="password">Senha</label>
     <input type="password" id="password" name="password" />
 
-    <label for="perfis">Perfis a serem marcados (espaço entre os mesmos e seus @)</label>
-    <input type="text" id="perfis" name="perfis" placeholder="@Art_toledo @Jaque361 @joaozinho_costa" />
-
     <label for="urlSorteio">URL da imagem oficial do sorteio</label>
     <input type="url" id="urlSorteio" name="urlSorteio" />
+
+    <label for="typeRaffle">Tipo de comentário</label>
+    <select id="typeRaffle" onchange="changeTypeRaffle()">
+      <option value="markedPeoples">Marcar pessoas</option>
+      <option value="randomWords">Palavras aleatórias</option>
+    </select>
+
+    <label id="labelPerfis" for="perfis">Perfis a serem marcados (espaço entre os mesmos e seus @)</label>
+    <input type="text" id="perfis" name="perfis" placeholder="@Art_toledo @Jaque361 @joaozinho_costa" />
   </div>
 
   <div class="actions">
@@ -41,7 +55,24 @@
     </button>
   </div>
 
+  <!-- script to set visible input perfis -->
+  <script>
+    const typeRaffle = document.querySelector('#typeRaffle');
+    const label = document.querySelector('#labelPerfis');
+    const input = document.querySelector('#perfis');
 
+    function changeTypeRaffle() {
+      if (typeRaffle.value !== 'markedPeoples') {
+        label.style.display = 'none';
+        input.style.display = 'none';
+      } else {
+        label.style.display = 'block';
+        input.style.display = 'block';
+      }
+    }
+  </script>
+
+  <!-- script to click button active -->
   <script>
     const buttonActive = document.querySelector('.active');
     const textButton = document.getElementById('activeText');
@@ -52,13 +83,15 @@
         const inputPassword = document.getElementById('password').value;
         const inputPerfis = document.getElementById('perfis').value;
         const inputUrlSorteio = document.getElementById('urlSorteio').value;
+        const inputTypeRaffle = document.getElementById('typeRaffle').value;
 
-        if (inputLogin === '' || inputPassword === '' || inputPerfis === '' || inputUrlSorteio === '') {
-          alert('Preencha todos os campos para executar o programa.')
+        if (inputTypeRaffle === 'markedPeoples' && (inputLogin === '' || inputPassword === '' || inputPerfis === '' || inputUrlSorteio === '')) {
+          alert('Preencha todos os campos para executar o programa.');
+        } else if (inputTypeRaffle === 'randomWords' && (inputLogin === '' || inputPassword === '' || inputUrlSorteio === '')) {
+          alert('Preencha todos os campos para executar o programa.');
         } else {
           textButton.innerHTML = 'Executando...'
           textButton.setAttribute("disabled", "true")
-
 
           // code electron
           const { ipcRenderer } = require('electron')
@@ -68,13 +101,16 @@
             passwordInput: inputPassword,
             perfisInput: inputPerfis,
             urlSorteioInput: inputUrlSorteio,
-          })
+            typeRaffle: inputTypeRaffle
+          });
         }
       } else {
         alert('O programa já está em execução')
       }
     });
   </script>
+
+  <!-- script to click button cancel -->
   <script>
     const buttonCancel = document.querySelector('.cancel');
     const textButtonActive = document.getElementById('activeText');
@@ -94,8 +130,9 @@
       }
     });
   </script>
+
+  <!-- script to update the comment count on the screen -->
   <script>
-    // code electron
     const { ipcRenderer } = require('electron')
 
     ipcRenderer.on('comentarioFinalizado', (event, arg) => {

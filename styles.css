@@ -36,8 +36,8 @@ body {
   padding: 5px;
   margin: 15px;
   -webkit-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
--moz-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
+  -moz-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
+  box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
 }
 
 .contadorComentarios h5 {
@@ -46,11 +46,19 @@ box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
   color: #fff;
 }
 
-.contadorComentarios h6 {
+.contadorComentarios:first-child h6 {
   margin-top: 10px;
   font-size: 16px;
   font-weight: 100;
   color: #fff;
+}
+
+.contadorComentarios:last-child h6 {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 100;
+  color: #fff;
+  text-align: justify;
 }
 
 .header {
@@ -77,7 +85,8 @@ box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.57);
   margin-top: 20px;
 }
 
-.inputs input {
+.inputs input,
+.inputs select {
   margin-top: 10px;
   height: 30px;
   padding: 5px;

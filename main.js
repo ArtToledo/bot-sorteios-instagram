@@ -5,13 +5,8 @@ const puppeteer = require('puppeteer');
 
 // variaveis para funcionamento do electron
 var win;
-
 // variaveis de controle do sistema
-var totalComentarios = 0;
-var login;
-var password;
-var perfis;
-var urlSorteio;
+var totalComentarios = 0, login, password, perfis, urlSorteio, typeRaffleMarked;
 
 function createWindow() {
   win = new BrowserWindow({
@@ -44,11 +39,12 @@ app.on('activate', () => {
 });
 
 ipcMain.on('activeSystem', (event, arg) => {
-  const { loginInput, passwordInput, perfisInput, urlSorteioInput } = arg;
+  const { loginInput, passwordInput, perfisInput, urlSorteioInput, typeRaffle } = arg;
   login = loginInput;
   password = passwordInput;
   perfis = perfisInput;
   urlSorteio = urlSorteioInput;
+  typeRaffleMarked = typeRaffle;
 
   job.start();
 });
@@ -58,10 +54,48 @@ ipcMain.on('cancelSystem', (event, arg) => {
 });
 
 var job = new CronJob('*/2 * * * *', function() {
-  commentInstagram(login, password, perfis, urlSorteio);
+  if (typeRaffleMarked === 'markedPeoples') {
+    commentInstagramProfilesMarked(login, password, perfis, urlSorteio);
+  } else {
+    commentInstagramRandomWords(login, password, urlSorteio);
+  }
 });
 
-const commentInstagram = async (login, password, perfis, urlSorteio) => {
+const commentInstagramRandomWords = async (login, password, urlSorteio) => {
+  // Starting browser
+  const browser = await puppeteer.launch({headless: false});
+  const page = await browser.newPage();
+
+  // Login flow
+  await page.goto('https://www.palavrasque.com/palavra-aleatoria.php?Submit=Nova+palavra');
+
+  const element = await page.$("b");
+  const text = await page.evaluate(element => element.textContent, element);
+
+  // Login flow
+  await page.goto('https://www.instagram.com/accounts/login/?source=auth_switcher');
+  await page.waitForSelector('input[name="username"]');
+  await page.type('input[name="username"]', login);
+  await page.type('input[name="password"]', password);
+  await page.click('button[type="submit"]');
+
+  // Waiting for page to refresh
+  await page.waitForNavigation();
+
+  // Navigate to post and submitting the comment
+  await page.goto(urlSorteio);
+  await page.waitForSelector('textarea');
+  await page.type('textarea', text);
+
+  await page.click('button[type="submit"]');
+
+  await browser.close();
+
+  totalComentarios += 1;
+  win.webContents.send('comentarioFinalizado', totalComentarios);
+};
+
+const commentInstagramProfilesMarked = async (login, password, perfis, urlSorteio) => {
   // Starting browser
   const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
